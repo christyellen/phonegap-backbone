@@ -109,7 +109,7 @@ changer.pg.App = Backbone.Router.extend({
 				else if(/javascript:\/\//.test(href) && /route-([^ ]+)/.test(className)) {
 					var func = RegExp.$1;
 					if(that[func]) {
-						that[func]();
+						that[func](link);
 					}
 				}
 				else if(link.hasClass('submit-form')) {
@@ -127,12 +127,18 @@ changer.pg.App = Backbone.Router.extend({
 	initializeDataFiles: function() {
 		var that = this;
 		this.dataFiles = [];
-		var json = $('#data');
-		if(json.length) {
-			json = json.html();
-			if(json.length) {
-				this.dataFiles = JSON.parse(json);
-			}
+		if(this.dataUrl) {
+			$.ajax({
+				type: 'GET',
+				url: this.dataUrl,
+				dataType: 'json',
+				async: false,
+				success: function(data) {
+					that.dataFiles = data;
+				},
+				error: function(xhr, type) {
+				}
+			});
 		}
 		// ADAPT AJAX TO FALLBACK TO EMBEDDED DATA
 		var ajax = $.ajax;
@@ -259,8 +265,11 @@ changer.pg.App = Backbone.Router.extend({
 	getMessage: function(key, args) {
 		return (this.messages && this.messages[key] || key).format(args);
 	},
+	getFileName: function(name) {
+		return 'data/' + name + '.txt';
+	},
 	getLines: function(name, callback, strip) {
-		var fileName = 'data/' + name + '.txt';
+		var fileName = this.getFileName(name);
 		var d = new Date();
 		$.get(fileName, function(data) {
 			data = data.replace(/\r/g, '');
