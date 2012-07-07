@@ -134,19 +134,22 @@ changer.pg.App = Backbone.Router.extend({
 				if(settings[key] === undefined) settings[key] = $.ajaxSettings[key];
 			}
 			if(/^data\/(.*)$/.test(settings.url)) {
-				if(!that.dataFiles && that.dataUrl) {
+				if(!that.dataFiles) {
 					that.dataFiles = [];
-					$.ajax({
-						type: 'GET',
-						url: that.dataUrl,
-						dataType: 'json',
-						async: false,
-						success: function(data) {
-							that.dataFiles = data;
-						},
-						error: function(xhr, type) {
-						}
-					});
+					if(that.dataUrl) {
+						that.dataFiles = [];
+						$.ajax({
+							type: 'GET',
+							url: that.dataUrl,
+							dataType: 'json',
+							async: false,
+							success: function(data) {
+								that.dataFiles = data;
+							},
+							error: function(xhr, type) {
+							}
+						});
+					}
 				}
 				var name = RegExp.$1,
 					data = that.dataFiles[name];
