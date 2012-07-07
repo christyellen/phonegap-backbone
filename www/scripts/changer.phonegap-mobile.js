@@ -126,20 +126,6 @@ changer.pg.App = Backbone.Router.extend({
 	},
 	initializeDataFiles: function() {
 		var that = this;
-		this.dataFiles = [];
-		if(this.dataUrl) {
-			$.ajax({
-				type: 'GET',
-				url: this.dataUrl,
-				dataType: 'json',
-				async: false,
-				success: function(data) {
-					that.dataFiles = data;
-				},
-				error: function(xhr, type) {
-				}
-			});
-		}
 		// ADAPT AJAX TO FALLBACK TO EMBEDDED DATA
 		var ajax = $.ajax;
 		$.ajax = function(options) {
@@ -148,6 +134,20 @@ changer.pg.App = Backbone.Router.extend({
 				if(settings[key] === undefined) settings[key] = $.ajaxSettings[key];
 			}
 			if(/^data\/(.*)$/.test(settings.url)) {
+				if(!that.dataFiles && that.dataUrl) {
+					that.dataFiles = [];
+					$.ajax({
+						type: 'GET',
+						url: that.dataUrl,
+						dataType: 'json',
+						async: false,
+						success: function(data) {
+							that.dataFiles = data;
+						},
+						error: function(xhr, type) {
+						}
+					});
+				}
 				var name = RegExp.$1,
 					data = that.dataFiles[name];
 				if(data) {
